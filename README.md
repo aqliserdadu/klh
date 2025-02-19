@@ -41,5 +41,6 @@ Docker image terdapat interval
 2. interval setiap 1 jam akan melakukan pengiriman data ke server API, menjalankan script sendApi.py untuk penyesuaian alamat API ubah di script sendApi.py
 
 Berkaitan dengan Image Docker bisa lihat di 
-	https://hub.docker.com/repository/docker/aqliserdadu/klh
+
+https://hub.docker.com/r/aqliserdadu/klh
 	
