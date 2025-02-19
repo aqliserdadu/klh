@@ -19,13 +19,13 @@ MYSQL_CONFIG = {
 tz = pytz.timezone('Asia/Jakarta')
 
 def write_log(message):
-    log_file_path = "/home/pi/klh/LOG/csvLog.txt"
+    log_file_path = "/home/klh/LOG/csvLog.txt"
     timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     with open(log_file_path, "a") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
 
 def prosesCsv():
-    folder = "/home/pi/FTP"
+    folder = "/home/FTP"
     try:
         files = os.listdir(folder)
     except Exception as e:
