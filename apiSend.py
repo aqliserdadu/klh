@@ -21,7 +21,7 @@ API_JWT = "https://sparing.kemenlh.go.id/api/secret-sensor"
 tz = pytz.timezone('Asia/Jakarta')
 
 def write_log(message):
-    folder="/home/pi/klh/LOG/apiLog.txt"
+    folder="/home/klh/LOG/apiLog.txt"
     timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     with open(folder, "a") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
