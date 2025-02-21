@@ -1,4 +1,4 @@
-# Penginstalan Docker di Raspberrypi dan Pemasangan Aplikasi
+# Penginstalan Docker di Raspberrypi bookworm dan Pemasangan Aplikasi
 
 # Penambahan Repository
 	sudo apt-get update
@@ -18,17 +18,17 @@
 
 
 # Download Image
-	sudo docker pull aqliserdadu/klh:1.0
+	sudo docker pull aqliserdadu/klh:2.0
 
 
 # Penggunaan Container
 Penggunaan bridge 
 
-	docker run -d  --name klh -p 3306:3306 -p 80:80 -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:1.0
+	docker run -d  --name klh -p 3306:3306 -p 80:80 -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
 	
 Penggunaan host
 
-	docker run -d --network host --name klh -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:1.0
+	docker run -d --network host --name klh -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
 
 note : pilih salah satu & user sesuaikan dengan nama folder masing-masing
 
@@ -39,6 +39,14 @@ note : pilih salah satu & user sesuaikan dengan nama folder masing-masing
 Docker image terdapat interval
 1. interval setiap 1 menit akan membaca pembacan file CSV yang ada di folder FTP di home, menjalankan script baca.py
 2. interval setiap 1 jam akan melakukan pengiriman data ke server API, menjalankan script sendApi.py untuk penyesuaian alamat API ubah di script sendApi.py
+
+# Crontab
+Untuk melakukan pengaturan crontab lakukan di dalam file config
+
+	* * * * * baca.py
+akan menjalankan script baca dalam 1 menit, untuk menonaktifkan cukup tambahkan tanda #
+
+	#* * * * * baca.py
 
 Berkaitan dengan Image Docker bisa lihat di 
 
