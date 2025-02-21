@@ -9,7 +9,7 @@ import math
 
 # Konfigurasi koneksi database MySQL
 MYSQL_CONFIG = {
-    'host': 'localhost',         # ganti dengan host MySQL Anda
+    'host': '127.0.0.1',         # ganti dengan host MySQL Anda
     'user': 'project',              # ganti dengan username MySQL Anda
     'password': '**project**',       # ganti dengan password MySQL Anda
     'database': 'loger'          # ganti dengan nama database MySQL Anda
