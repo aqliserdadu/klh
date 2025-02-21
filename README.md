@@ -24,11 +24,11 @@
 # Penggunaan Container
 Penggunaan bridge 
 
-	docker run -d  --name klh -p 3306:3306 -p 80:80 -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
+	docker run -d --restart=always --name klh -p 3306:3306 -p 80:80 -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
 	
 Penggunaan host
 
-	docker run -d --network host --name klh -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
+	docker run -d --restart=always --network host --name klh -v /home/user/FTP:/home/FTP -v /home/user/klh:/home/klh aqliserdadu/klh:2.0
 
 note : pilih salah satu & user sesuaikan dengan nama folder masing-masing
 
