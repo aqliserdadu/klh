@@ -8,7 +8,7 @@ import math
 from dotenv import load_dotenv
 
 # Load environment variables
-env_path = "/home/it03/Documents/klh/config/.env"  # .env file path
+env_path = "/home/klh/config/.env"  # .env file path
 if not load_dotenv(dotenv_path=env_path):
     print(f"Error: .env file not found at {env_path}")
     exit(1)
@@ -33,13 +33,13 @@ MYSQL_CONFIG = {
 tz = pytz.timezone(TIMEZONA)
 
 def write_log(message):
-    log_file_path = "/home/it03/Documents/klh/LOG/csvLog.txt"
+    log_file_path = "/home/klh/LOG/csvLog.txt"
     timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     with open(log_file_path, "a") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
 
 def prosesCsv():
-    folder = "/home/it03/Documents/klh/FTP"
+    folder = "/home/FTP"
     try:
         files = os.listdir(folder)
     except Exception as e:

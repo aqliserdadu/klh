@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 
 # Tentukan path file .env di subfolder 'config'
-env_path = "/home/it03/Documents/klh/config/.env"  # Menunjukkan file .env dalam subfolder 'config'
+env_path = "/home/klh/config/.env"  # Menunjukkan file .env dalam subfolder 'config'
 
 # Memuat variabel lingkungan dari file .env
 load_dotenv(dotenv_path=env_path)
@@ -45,7 +45,7 @@ tz = pytz.timezone(TIMEZONA)
 
 # Konfigurasi endpoint API, folder data, dan path database
 def write_log(message):
-    folder = "/home/it03/Documents/klh/LOG/apiLog.txt"
+    folder = "/home/klh/LOG/apiLog.txt"
     timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     with open(folder, "a") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
