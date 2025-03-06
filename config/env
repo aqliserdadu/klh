@@ -1,0 +1,28 @@
+#Aplikasi 
+#1 aktif, 0 nonaktif
+BACACSV=1
+APISEND=1
+
+
+#Config Timezona
+TIMEZONA="Asia/Jakarta"
+
+#Config Database
+HOST="127.0.0.1"
+USERS="project"
+PASSWORD="**project**"
+DATABASE="loger"
+
+
+#Config API
+URL_API="https://sparing.kemenlh.go.id/api/testing"
+URL_TOKEN="https://sparing.kemenlh.go.id/api/secret-sensor"
+UID="63d3fe3fa2366e1acce66360"
+
+#Config Retry Duplikasi
+#batasan berapakali percobaan saat kirim
+MAX_RETRY_DUP=3
+#batasan wktu tunggu dari percobaan berikutnnya dalam satuan detik
+WAIT_TIME_DUP=10
+#batsan terjadi perulangan script duplikasi agar tidak terus menerus
+MAX_DUP_RETRY=3
