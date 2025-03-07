@@ -197,7 +197,8 @@ def send_data_to_api(data, start, end,duplicate_attempt):
         if response_data["status"]:
             print("Data berhasil dikirim ke API")
             write_log("Data berhasil dikirim ke API")
-            write_log(f"Pesan Berhasil: {response.text}")
+            print(f"Pesan Berhasil: {response.text}")
+			write_log(f"Pesan Berhasil: {response.text}")
 
             datekirim = datetime.now(tz)
             # Update waktu kirim jika berhasil
