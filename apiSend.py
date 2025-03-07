@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 
 # Tentukan path file .env di subfolder 'config'
-env_path = "/home/klh/config/.env"  # Menunjukkan file .env dalam subfolder 'config'
+env_path = "/home/config/.env"  # Menunjukkan file .env dalam subfolder 'config'
 
 # Memuat variabel lingkungan dari file .env
 load_dotenv(dotenv_path=env_path)
@@ -27,10 +27,8 @@ API_ENDPOINT = os.getenv('URL_API')  # Ganti dengan URL API Anda
 API_JWT = os.getenv('URL_TOKEN')
 UID = os.getenv('UID')
 
-MAX_RETRY_DUP = int(os.getenv('MAX_RETRY_DUP'))
-WAIT_TIME_DUP = int(os.getenv('WAIT_TIME_DUP'))
-MAX_DUP_RETRY = int(os.getenv('MAX_DUP_RETRY'))
-
+MAX_DUP_RETRY = int(os.getenv('MAX_DUP_RETRY'))   # batasan terjadi perulangan script duplikasi agar tidak terus menerus
+duplicate_attempt=0
 # Konfigurasi koneksi database MySQL
 MYSQL_CONFIG = {
     'host': HOST,         # ganti dengan host MySQL Anda
@@ -45,7 +43,7 @@ tz = pytz.timezone(TIMEZONA)
 
 # Konfigurasi endpoint API, folder data, dan path database
 def write_log(message):
-    folder = "/home/klh/LOG/apiLog.txt"
+    folder = "/home/LOG/apiLog.txt"
     timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     with open(folder, "a") as log_file:
         log_file.write(f"[{timestamp}] {message}\n")
@@ -75,6 +73,7 @@ def get_jwt_token():
         print(f"Terjadi error saat menghubungi API: {e}")
         write_log(f"Terjadi error saat menghubungi API: {e}")
         return None
+
 
 def ambil_data():
     now = datetime.now(tz)
@@ -137,7 +136,7 @@ def ambil_data():
                     for entry in data
                 ]
                         
-            send_data_to_api(group, start, end)
+            send_data_to_api(group, start, end,duplicate_attempt)
 
     except mysql.connector.Error as db_err:
         print(f"[{datetime.now()}] Error pada koneksi database: {db_err}")
@@ -151,7 +150,8 @@ def ambil_data():
         if conn:
             conn.close()
 
-def send_data_to_api(data, start, end):
+def send_data_to_api(data, start, end,duplicate_attempt):
+    
     print(f"Kirim data jam {start} s/d {end}")
     write_log(f"Kirim data jam {start} s/d {end}")
     
@@ -218,6 +218,25 @@ def send_data_to_api(data, start, end):
             if "duplikasi" in response_data["desc"].lower():
                 print("Duplikasi ditemukan, memproses data duplikat...")
                 write_log("Duplikasi ditemukan, memproses data duplikat...")
+                
+                duplicate_attempt += 1
+                if duplicate_attempt >= MAX_DUP_RETRY:
+                    print(f"Duplikasi terdeteksi {duplicate_attempt} kali, menghentikan percobaan...")
+                    write_log(f"Duplikasi terdeteksi {duplicate_attempt} kali, menghentikan percobaan...")
+                    try:
+                        # Membuka koneksi dan cursor untuk update status
+                        with mysql.connector.connect(**MYSQL_CONFIG) as conn:
+                            with conn.cursor() as cursor:
+                                cursor.execute("UPDATE tmp SET status='Duplikasi', keterangan='Duplikasi tidak teratasi, lakukan manual check' WHERE date >=%s AND date <=%s", [start, end])
+                                conn.commit()
+                    except mysql.connector.Error as db_err:
+                        write_log(f"Error saat mencoba update status duplikasi di database: {db_err}")
+                    finally:
+                        if cursor:
+                            cursor.close()
+                        if conn:
+                            conn.close()    
+                    return           #keluar
 
                 for timestamp in response_data["data"]:
                     cursor.execute("SELECT 1 FROM tmp WHERE date = %s", [timestamp])
@@ -232,11 +251,32 @@ def send_data_to_api(data, start, end):
                 write_log(f"Data duplikat telah dihapus dari database.")
                 print(f"Data duplikat telah dihapus dari database.")
 
-                write_log(f"Mencoba Mengirim Ulang Data")
-                print(f"Mencoba Mengirim Ulang Data.")
+                
+                print(f"Mengambil ulang data kembali")
+                write_log(f"Mengambil ulang data kembali")
+                
                 
                 # Mengirim ulang data jika duplikasi
-                retry_send_data_to_api(MAX_RETRY_DUP, WAIT_TIME_DUP, MAX_DUP_RETRY, data, start, end)
+                #mengambil data baru setelah duplikasi di hapus
+                cursor.execute("SELECT datetime, ph, tss, cod, debit, nh3n FROM tmp  WHERE date >=%s AND date <=%s", [start, end])
+                rows = cursor.fetchall()
+                conn.commit()
+                
+                if not rows:
+                    print("Tidak ada data yang perlu dikirim, setelah penghapusan duplikasi")
+                    write_log("Tidak ada data yang perlu dikirim, setelah penghapusan duplikasi")
+                    return  # Tidak ada data yang ditemukan, keluar dari send api
+
+                # Ambil nama kolom dari hasil query
+                
+                columns = [desc[0] for desc in cursor.description]
+
+                # Konversi hasil query ke dalam format JSON
+                json_data = [dict(zip(columns, row)) for row in rows]
+                        
+        
+                send_data_to_api(json_data, start, end, duplicate_attempt)
+   
             else:
                 cursor.execute("UPDATE tmp SET status='retry', keterangan=%s WHERE date >=%s AND date <=%s", [response.text, start, end])
                 conn.commit()
@@ -252,55 +292,6 @@ def send_data_to_api(data, start, end):
             cursor.close()
         if conn:
             conn.close()
-
-def retry_send_data_to_api(max_retries, wait_time, max_duplicate_retries, retry_data, start, end):
-    attempt = 0
-    duplicate_attempt = 0
-
-    while attempt < max_retries:
-        print(f"Mencoba percobaan ke-{attempt + 1} untuk mengirim ulang data...")
-        write_log(f"Mencoba percobaan ke-{attempt + 1} untuk mengirim ulang data...")
-
-        try:
-            send_data_to_api(retry_data, start, end)
-            print(f"Percobaan ke-{attempt + 1} berhasil mengirim data.")
-            write_log(f"Percobaan ke-{attempt + 1} berhasil mengirim data.")
-            return  # Jika berhasil, keluar dari fungsi retry
-        except Exception as e:
-            print(f"Percobaan ke-{attempt + 1} gagal: {e}")
-            write_log(f"Percobaan ke-{attempt + 1} gagal: {e}")
-
-            if "duplikasi" in str(e).lower():
-                duplicate_attempt += 1
-                if duplicate_attempt >= max_duplicate_retries:
-                    print(f"Duplikasi terdeteksi {duplicate_attempt} kali, menghentikan percobaan...")
-                    write_log(f"Duplikasi terdeteksi {duplicate_attempt} kali, menghentikan percobaan...")
-                    keterangan="Terdapat duplikasi tidak teratasi, lakukan manual"
-                    # Membuka koneksi dan cursor
-                    
-                    try:
-                        # Membuka koneksi dan cursor untuk update status
-                        with mysql.connector.connect(**MYSQL_CONFIG) as conn:
-                            with conn.cursor() as cursor:
-                                cursor.execute("UPDATE tmp SET status='Duplikasi', keterangan=%s WHERE date >=%s AND date <=%s", [str(e), start, end])
-                                conn.commit()
-                    except mysql.connector.Error as db_err:
-                        write_log(f"Error saat mencoba update status duplikasi di database: {db_err}")
-                        
-                    break
-                else:
-                    print(f"Duplikasi ditemukan, mencoba lagi... percobaan ke-{duplicate_attempt}")
-                    write_log(f"Duplikasi ditemukan, mencoba lagi... percobaan ke-{duplicate_attempt}")
-
-        attempt += 1
-        if attempt < max_retries:
-            print(f"Tunggu {wait_time} detik sebelum mencoba lagi...")
-            write_log(f"Tunggu {wait_time} detik sebelum mencoba lagi...")
-            time.sleep(wait_time)
-
-    print(f"Semua percobaan gagal mengirim data.")
-    write_log(f"Semua percobaan gagal mengirim data.")
-
 
 
 if __name__ == "__main__":

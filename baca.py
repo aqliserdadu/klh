@@ -208,7 +208,6 @@ def prosesCsv():
                     print("Sedang melakukan kalibrasi, Nilai data")
                     write_log("Sedang melakukan kalibrasi, Nilai data")
                     
-
                 
             except Exception as e:
                 print(f"[{datetime.now()}] Error memasukkan baris {index} pada file {filename}: {e}")
