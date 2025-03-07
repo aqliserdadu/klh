@@ -1,2 +1,4 @@
 * * * * * baca.py
-#0 * * * * sendApi.py
+#0 * * * * apiSend.py
+#4,8,12 * * * * retryApiSend.py
+
