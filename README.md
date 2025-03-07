@@ -13,13 +13,13 @@ Extrak Script di home
 
   	git clone https://github.com/aqliserdadu/klh.git
 
-Cara kerja script
+# Cara kerja script
 
-# Docker image terdapat interval
+Docker image terdapat interval
 
-1.interval setiap 1 menit akan membaca pembacan file CSV yang ada di folder FTP di home, menjalankan script baca.py
-2.interval setiap 1 jam akan melakukan pengiriman data ke server API, menjalankan script sendApi.py untuk penyesuaian alamat API ubah di script sendApi.py
-3.interval setiap di menit 4,8,12 akan melakukan pengiriman data ke server API, menjalankan script retrySendApi.py untuk penyesuaian alamat API ubah di script retrySendApi.py
+    1.interval setiap 1 menit akan membaca pembacan file CSV yang ada di folder FTP di home, menjalankan script baca.py
+    2.interval setiap 1 jam akan melakukan pengiriman data ke server API, menjalankan script sendApi.py untuk penyesuaian alamat API ubah di script sendApi.py
+    3.interval setiap di menit 4,8,12 akan melakukan pengiriman data ke server API, menjalankan script retrySendApi.py untuk penyesuaian alamat API ubah di script retrySendApi.py
 
 
 # Environment
